@@ -3,9 +3,10 @@ package com.pinnkeyy.gdx.sprites;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.EdgeShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
@@ -36,10 +37,10 @@ public class Mario extends Sprite
     private float stateTimer;
     private boolean runningRight;
 
-    public Mario(World world, PlayScreen screen)
+    public Mario(PlayScreen screen)
     {
         super(screen.getAtlas().findRegion("little_mario"));
-        this.world = world;
+        this.world = screen.getWorld();
 
         currentState = State.STANDING;
         prevState = State.STANDING;
@@ -73,10 +74,27 @@ public class Mario extends Sprite
 
         FixtureDef fdef = new FixtureDef();
         PolygonShape shape = new PolygonShape();
-        shape.setAsBox((16.0f / 2.0f) / GDXGame.PPM, (16.0f / 2.0f) / GDXGame.PPM);
 
+        float boxR = 8.0f;
+        shape.setAsBox(boxR / GDXGame.PPM, boxR / GDXGame.PPM);
+        fdef.filter.categoryBits = GDXGame.MARIO_BIT;
+        fdef.filter.maskBits =
+                GDXGame.GROUND_BIT |
+                GDXGame.BRICK_BIT |
+                GDXGame.COIN_BIT |
+                GDXGame.ENEMY_BIT |
+                GDXGame.OBJECT_BIT |
+                GDXGame.ENEMY_HEAD_BIT |
+                GDXGame.ITEM_BIT;
         fdef.shape = shape;
         body.createFixture(fdef);
+
+        EdgeShape head = new EdgeShape();
+        head.set(new Vector2(-3.0f / GDXGame.PPM, boxR / GDXGame.PPM), new Vector2(3.0f / GDXGame.PPM, boxR / GDXGame.PPM));
+
+        fdef.shape = head;
+        fdef.isSensor = true;
+        body.createFixture(fdef).setUserData("head");
     }
 
     public State getState()

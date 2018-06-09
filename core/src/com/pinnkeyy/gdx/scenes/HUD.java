@@ -59,6 +59,24 @@ public class HUD implements Disposable
 
     }
 
+    public void addScore(int value)
+    {
+        score += value;
+        scoreLabel.setText(String.format("%06d", score));
+    }
+
+    public void update(float dt)
+    {
+        timeCount += dt;
+
+        if (timeCount >= 1.0f)
+        {
+            worldTimer--;
+            countDownLabel.setText(String.format("%03d", worldTimer));
+            timeCount = 0.0f;
+        }
+    }
+
     @Override
     public void dispose()
     {
